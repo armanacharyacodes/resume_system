@@ -1,9 +1,8 @@
 package com.resume_system.resume_system.service.serviceimpl;
 
-
 import com.resume_system.resume_system.entity.User;
 import com.resume_system.resume_system.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import com.resume_system.resume_system.security.UserPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,6 +21,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
-        return user;
+
+        // ✅ wrap the entity inside your UserPrincipal
+        return new UserPrincipal(user);
     }
 }

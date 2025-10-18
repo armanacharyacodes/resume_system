@@ -1,6 +1,8 @@
 package com.resume_system.resume_system.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.resume_system.resume_system.dto.LoginRequestDTO;
 import com.resume_system.resume_system.dto.RegisterRequestDTO;
 import com.resume_system.resume_system.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -14,10 +16,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -62,6 +64,8 @@ class AuthControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isConflict());
+
+        LoginRequestDTO loginReq = new LoginRequestDTO("user1@gmail.com", "user$1234");
 
         // 3. login → 200 + token
         mvc.perform(post("/api/auth/login")
