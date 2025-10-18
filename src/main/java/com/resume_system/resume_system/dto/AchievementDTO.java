@@ -6,9 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class MessageDTO {
-    private String message;
+public class AchievementDTO {
+    private Long id;
+    private String title;
+    private String description;
+    private Long resumeId;
 }

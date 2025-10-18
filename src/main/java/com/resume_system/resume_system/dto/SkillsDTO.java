@@ -6,9 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class MessageDTO {
-    private String message;
+public class SkillsDTO {
+    private Long id;
+    private String name;
+    private String level; // BEGINNER, INTERMEDIATE, ADVANCED
+    private Long resumeId;
 }

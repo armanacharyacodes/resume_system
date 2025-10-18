@@ -21,26 +21,32 @@ public class AuthServiceImpl implements AuthService {
 
     private final Set<String> blacklistedJti = new HashSet<>();
 
-    public void register(String email, String password) {
+    @Override
+    public User register(String email, String password) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("User already exists with this email");
         }
-        User user = new User();
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
+        return userRepository.save(
+                User.builder()
+                        .email(email)
+                        .password(passwordEncoder.encode(password))
+                        .build()
+        );
     }
 
+    @Override
     public void logout(String token) {
         if (token != null && !token.isBlank()) {
             blacklistedJti.add(jwtUtil.getJti(token));
         }
     }
 
+    @Override
     public boolean isTokenBlacklisted(String token) {
         return blacklistedJti.contains(jwtUtil.getJti(token));
     }
 
+    @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));

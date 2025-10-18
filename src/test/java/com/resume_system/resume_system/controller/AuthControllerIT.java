@@ -4,7 +4,6 @@ package com.resume_system.resume_system.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.resume_system.resume_system.dto.LoginRequestDTO;
 import com.resume_system.resume_system.dto.RegisterRequestDTO;
-import com.resume_system.resume_system.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,12 +43,13 @@ class AuthControllerIT {
     MockMvc mvc;
     @Autowired
     ObjectMapper mapper;
-    @Autowired
-    UserRepository userRepository;
 
     @Test
     void registerAndLoginFlow() throws Exception {
-        RegisterRequestDTO req = new RegisterRequestDTO("user1@gmail.com", "user$1234");
+        RegisterRequestDTO req = RegisterRequestDTO.builder()
+                .email("user1@gmail.com")
+                .password("user$1234")
+                .build();
 
         // 1. register → 201 + message
         mvc.perform(post("/api/auth/register")
@@ -65,12 +65,15 @@ class AuthControllerIT {
                         .content(mapper.writeValueAsString(req)))
                 .andExpect(status().isConflict());
 
-        LoginRequestDTO loginReq = new LoginRequestDTO("user1@gmail.com", "user$1234");
-
         // 3. login → 200 + token
+        LoginRequestDTO loginReq = LoginRequestDTO.builder()
+                .email("user1@gmail.com")
+                .password("user$1234")
+                .build();
+
         mvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(req)))
+                        .content(mapper.writeValueAsString(loginReq)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.message").value("Login successful"));

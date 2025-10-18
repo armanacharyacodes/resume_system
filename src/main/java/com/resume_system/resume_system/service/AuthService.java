@@ -4,7 +4,7 @@ import com.resume_system.resume_system.entity.User;
 
 public interface AuthService {
 
-    void register(String email, String password);
+    User register(String email, String password);
 
     void logout(String token);
 

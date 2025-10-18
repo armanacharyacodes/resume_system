@@ -5,9 +5,7 @@ import com.resume_system.resume_system.dto.LoginRequestDTO;
 import com.resume_system.resume_system.dto.MessageDTO;
 import com.resume_system.resume_system.dto.RegisterRequestDTO;
 import com.resume_system.resume_system.security.JwtUtil;
-import com.resume_system.resume_system.security.UserPrincipal;
 import com.resume_system.resume_system.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,38 +27,49 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<MessageDTO> register(@Valid @RequestBody RegisterRequestDTO dto) {
+    public ResponseEntity<MessageDTO> register(@RequestBody RegisterRequestDTO dto) {
         try {
             authService.register(dto.getEmail(), dto.getPassword());
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new MessageDTO("Registration successful"));
+                    .body(MessageDTO.builder()
+                            .message("Registration successful")
+                            .build());
         } catch (RuntimeException ex) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new MessageDTO("Email already exists"));
+                    .body(MessageDTO.builder()
+                            .message("Email already exists")
+                            .build());
         }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
-        // Authenticate user
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequestDTO dto) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
 
-        UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
         String token = jwtUtil.generateToken(auth);
-
-        AuthResponseDTO response = new AuthResponseDTO(token, "Login successful");
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                AuthResponseDTO.builder()
+                        .accessToken(token)
+                        .message("Login successful")
+                        .build()
+        );
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<MessageDTO> logout(@RequestBody String token) {
+    public ResponseEntity<AuthResponseDTO> logout(@RequestBody String token) {
         if (token == null || token.isBlank()) {
-            return ResponseEntity.badRequest().body(new MessageDTO("Token required"));
+            return ResponseEntity.badRequest()
+                    .body(AuthResponseDTO.builder()
+                            .message("Token required")
+                            .build());
         }
-
         authService.logout(token);
-        return ResponseEntity.ok(new MessageDTO("Logout successful"));
+        return ResponseEntity.ok(
+                AuthResponseDTO.builder()
+                        .message("Logout successful")
+                        .build()
+        );
     }
 }
